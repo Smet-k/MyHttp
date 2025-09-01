@@ -1,0 +1,29 @@
+
+<html>
+<head>
+    <title>JS POST Test</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("testForm");
+            const output = document.getElementById("output");
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault(); // stop real POST navigation
+                const formData = new FormData(form);
+
+                // Convert form data to object
+                let data = {};
+                formData.forEach((value, key) => data[key] = value);
+
+                // Show it on page
+                output.innerText = JSON.stringify(data, null, 2);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>POST request</h1>
+    <h2>Received Data:</h2>
+    <pre id="output"></pre>
+</body>
+</html>
