@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.14.0)
 project(MyHttp LANGUAGES C)
 
-add_compile_options(-Werror)
+add_compile_options(-Werror -Wall)
+
 set(CMAKE_C_STANDARD 11)
 
 file(GLOB MyHttp_src "src/*.c")
