@@ -39,6 +39,10 @@ http_request_t parse_request(char buf[]){
 static int parse_request_line(char buf[], http_request_line_t* rl){
     char method[METHOD_SIZE];
     char url[URL_SIZE];
+    char format_string[32];
+
+    snprintf(format_string, sizeof(format_string),
+    "%%%ds %%%ds %%%ds", METHOD_SIZE - 1, URL_SIZE - 1, VERSION_SIZE - 1);
 
     char* line_end = strstr(buf, "\r\n");
     
@@ -49,7 +53,7 @@ static int parse_request_line(char buf[], http_request_line_t* rl){
 
     *line_end = '\0';
 
-    int n = sscanf(buf, "%7s %255s %15s", method, url, rl->version);
+    int n = sscanf(buf, format_string, method, url, rl->version);
     if (n != 3) {
         rl->method = HTTP_UNKNOWN;
         return -1;
