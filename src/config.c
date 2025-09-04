@@ -23,7 +23,6 @@ int load_config(const char* filename, Config* config) {
     if (!file) return -1;
 
     char line[MAXLINE];
-    char key[50], value[50];
 
     while (fgets(line, sizeof(line), file) != NULL) {
         char* trimmed = trim(line);
@@ -39,4 +38,5 @@ int load_config(const char* filename, Config* config) {
             }
         }
     }
+    return 0;
 }

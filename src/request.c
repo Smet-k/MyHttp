@@ -14,11 +14,10 @@ static const char* http_method_str[] = {
 };
 
 static int parse_method(char* method, http_method_t* methodptr);
-static char* parse_path(char* url);
+static void parse_path(char* url, char* path);
 static int parse_request_line(char buf[], http_request_line_t* rl);
-static int parse_headers(char** bufptr, http_request_t* request);
+// static int parse_headers(char** bufptr, http_request_t* request);
 static int parse_body(char buf[], http_request_t* request);
-static const char* get_mime_type(const char* filename);
 
 http_request_t parse_request(char buf[]){
     http_request_t request = {0};
@@ -60,7 +59,7 @@ static int parse_request_line(char buf[], http_request_line_t* rl){
     }
     *line_end = '\r';
 
-    strncpy(rl->path,parse_path(url), PATH_SIZE);
+    parse_path(url, rl->path);
 
     if(parse_method(method, &rl->method) < 0)
         return -1;
@@ -84,20 +83,18 @@ static int parse_method(char* method, http_method_t* methodptr){
     return 0;
 }
 
-static char* parse_path(char* url){
-    char* path;
-
+static void parse_path(char* url, char* path){
+    
     // skipping query
     char* query = strstr(url, "?");
     if (query)
         *query = '\0';
     
-    sprintf(path, "%s%s", ROOTFOLDER, url);
+    snprintf(path, PATH_SIZE, "%s%s", ROOTFOLDER, url);
     
     if (path[strlen(path) - 1] == '/')
-        strcat(path, "index.html");
-    
-    return path;
+        strncat(path, "index.html", PATH_SIZE - strlen(path) - 1);
+
 }
 
 static int parse_body(char buf[], http_request_t* request){

@@ -57,6 +57,8 @@ static void* thread_do_work(void* arg) {
 
         task.function(task.arg);
     }
+
+    return NULL;
 }
 
 void thread_queue_push(TaskQueue* queue, Task task) {

@@ -84,7 +84,7 @@ static void startup(int* server_fd, struct sockaddr_in* server_addr, Config* cfg
 static void accept_requests(int server_fd, Config cfg) {
     ThreadPool* tp = threadpool_create(cfg.threads);
     struct sockaddr_in client_addr;
-    int client_addr_length = sizeof(client_addr);
+    socklen_t client_addr_length = sizeof(client_addr);
 
     struct pollfd fds[MAX_CLIENTS];
     fds[0].fd = server_fd;
