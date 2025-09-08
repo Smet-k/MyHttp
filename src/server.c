@@ -9,8 +9,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "tpool.h"
 #include "request.h"
+#include "tpool.h"
 #define MAX_CLIENTS 50000
 #define BUFFER_SIZE 1024
 #define SERVERSTRING "Server: myHttp\r\n"
@@ -100,8 +100,8 @@ static void accept_requests(const int server_fd, const Config cfg) {
             if (fds[i].revents & POLLIN) {
                 if (fds[i].fd == server_fd) {
                     const int client_sock = accept(server_fd,
-                                             (struct sockaddr*)&client_addr,
-                                             &client_addr_length);
+                                                   (struct sockaddr*)&client_addr,
+                                                   &client_addr_length);
 
                     if (client_sock >= 0) {
                         fds[nfds].fd = client_sock;
@@ -143,15 +143,14 @@ static void process_requests(const int client) {
         return;
     }
 
-    switch (request.request_line.method)
-    {
-    case HTTP_GET:
-    case HTTP_POST:
-        handle_request(client, request);
-        break;
-    default:
-        respond(client, 501, "Method Not Implemented");
-        break;
+    switch (request.request_line.method) {
+        case HTTP_GET:
+        case HTTP_POST:
+            handle_request(client, request);
+            break;
+        default:
+            respond(client, 501, "Method Not Implemented");
+            break;
     }
     close(client);
 }
@@ -172,7 +171,7 @@ static void respond(const int client, const int code, const char* reason) {
     send(client, buf, strlen(buf), 0);
 }
 
-static void respond_file(int client, http_request_t request, FILE* resource){
+static void respond_file(int client, http_request_t request, FILE* resource) {
     char buf[BUFFER_SIZE];
     size_t bytes_read;
 

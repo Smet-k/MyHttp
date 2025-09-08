@@ -17,13 +17,13 @@ typedef struct {
 } TaskQueue;
 
 typedef struct {
-    pthread_t *threads;
+    pthread_t* threads;
     int thread_count;
     TaskQueue queue;
 } ThreadPool;
 
 ThreadPool* threadpool_create(const int num_threads);
-void thread_queue_init(TaskQueue *queue); 
-void thread_queue_push(TaskQueue *queue, const Task task);
+void thread_queue_init(TaskQueue* queue);
+void thread_queue_push(TaskQueue* queue, const Task task);
 
 #endif
