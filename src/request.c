@@ -77,7 +77,10 @@ static int parse_headers(char buf[], http_request_t* request) {
         line = strtok_r(NULL, "\r\n", &save_ptr);
     }
     *headers_end = '\r';
-    strcpy(buf, save_ptr);
+    
+    const size_t offset = (size_t)(save_ptr - buf);
+    memmove(buf, buf + offset, strlen(buf + offset));
+    
     return 0;
 }
 
@@ -103,8 +106,9 @@ static int parse_request_line(char buf[], http_request_line_t* rl) {
         rl->method = HTTP_UNKNOWN;
         return -1;
     }
-    // change approach later
-    strcpy(buf, save_ptr + 1);  // +1 removes the \n
+
+    const size_t offset = (size_t)(save_ptr - buf);
+    memmove(buf, buf + offset, strlen(buf + offset));
 
     if(parse_path(url, rl->path) < 0)
         return -1;
