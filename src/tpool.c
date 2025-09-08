@@ -6,6 +6,11 @@
 static void* thread_do_work(void* arg);
 
 void thread_queue_init(TaskQueue* queue) {
+    if(!queue) {
+        fprintf(stderr, "Queue initialization with NULL queue\n");
+        return;
+    }
+
     queue->count = 0;
     pthread_mutex_init(&queue->lock, NULL);
     pthread_cond_init(&queue->not_empty, NULL);
@@ -38,6 +43,11 @@ ThreadPool* threadpool_create(const int num_threads) {
 }
 
 static void* thread_do_work(void* arg) {
+    if (!arg) {
+        fprintf(stderr, "Worker thread started with NULL arg\n");
+        return NULL;
+    }
+
     ThreadPool* tp = (ThreadPool*)arg;
 
     while (1) {
@@ -62,6 +72,11 @@ static void* thread_do_work(void* arg) {
 }
 
 void thread_queue_push(TaskQueue* queue, const Task task) {
+    if(!queue) {
+        fprintf(stderr, "Attempted to add task to NULL queue\n");
+        return;
+    }
+
     pthread_mutex_lock(&queue->lock);
     queue->tasks[queue->count] = task;
     queue->count++;

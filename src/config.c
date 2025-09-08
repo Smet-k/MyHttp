@@ -6,10 +6,14 @@
 #define MAXLINE 128
 
 static char* trim(char* str) {
-    char* end;
+    if(!str){
+        fprintf(stderr, "Trimming the NULL string\n");
+        return NULL;
+    }
+
     while (*str == ' ' || *str == '\t') str++;
 
-    end = str + strlen(str) - 1;
+    char* end = str + strlen(str) - 1;
     while (end > str && (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r')) {
         *end = '\0';
         end--;
@@ -19,6 +23,8 @@ static char* trim(char* str) {
 }
 
 int load_config(const char* filename, Config* config) {
+    if(!filename || !config) return -1;
+    
     FILE* file = fopen(filename, "r");
     if (!file) return -1;
 
@@ -26,6 +32,10 @@ int load_config(const char* filename, Config* config) {
 
     while (fgets(line, sizeof(line), file) != NULL) {
         char* trimmed = trim(line);
+
+        if (!trimmed || *trimmed == '\0') {
+            continue;
+        }
 
         const char* key = strtok(trimmed, "=");
         const char* value = strtok(NULL, "=");
@@ -38,5 +48,7 @@ int load_config(const char* filename, Config* config) {
             }
         }
     }
+    
+    fclose(file);
     return 0;
 }

@@ -38,6 +38,11 @@ void run_server(Config cfg) {
 }
 
 static void startup(int* server_fd, struct sockaddr_in* server_addr, Config* cfg) {
+    if (!server_fd || !server_addr || !cfg) {
+        perror("Invalid argument to startup");
+        exit(EXIT_FAILURE);
+    }
+
     if ((*server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Server start failed");
         exit(EXIT_FAILURE);
@@ -156,6 +161,8 @@ static void process_requests(const int client) {
 }
 
 static void respond(const int client, const int code, const char* reason) {
+    if(!reason) return;
+
     char buf[BUFFER_SIZE];
 
     sprintf(buf, "HTTP/1.0 %d %s", code, reason);
@@ -172,6 +179,11 @@ static void respond(const int client, const int code, const char* reason) {
 }
 
 static void respond_file(int client, http_request_t request, FILE* resource) {
+    if(!resource) {
+        fprintf(stderr, "Responding with NULL file\n");
+        return;
+    }
+
     char buf[BUFFER_SIZE];
     size_t bytes_read;
 
@@ -222,6 +234,11 @@ static void handle_request(const int client, const http_request_t request) {
 }
 
 static const char* get_mime_type(const char* filename) {
+    if(!filename) {
+        fprintf(stderr, "NULL filename provided\n");
+        return NULL;
+    }
+
     const char* ext = strchr(filename, '.');
 
     if (strcmp(ext, ".html") == 0 || strcmp(ext, ".html") == 0) return "text/html";

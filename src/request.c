@@ -10,10 +10,11 @@
 static const char* http_method_str[] = {
     "GET",
     "POST",
-    "UNKNOWN"};
+    "UNKNOWN"
+};
 
 static int parse_method(const char* method, http_method_t* methodptr);
-static void parse_path(char* url, char* path);
+static int parse_path(char* url, char* path);
 static int parse_request_line(char buf[], http_request_line_t* rl);
 static int parse_headers(char buf[], http_request_t* request);
 static int parse_body(char buf[], http_request_t* request);
@@ -39,8 +40,7 @@ http_request_t parse_request(char buf[]) {
 }
 
 static int parse_headers(char buf[], http_request_t* request) {
-    if (!buf || !request)
-        return -1;
+    if (!buf || !request) return -1;
 
     char* headers_end = strstr(buf, "\r\n\r\n");
     *headers_end = '\0';  // making strtok not destroy head-body delimiter
@@ -82,6 +82,8 @@ static int parse_headers(char buf[], http_request_t* request) {
 }
 
 static int parse_request_line(char buf[], http_request_line_t* rl) {
+    if (!buf || !rl) return -1;
+
     char method[METHOD_SIZE];
     char url[URL_SIZE];
     char format_string[32];
@@ -101,9 +103,11 @@ static int parse_request_line(char buf[], http_request_line_t* rl) {
         rl->method = HTTP_UNKNOWN;
         return -1;
     }
+    // change approach later
     strcpy(buf, save_ptr + 1);  // +1 removes the \n
 
-    parse_path(url, rl->path);
+    if(parse_path(url, rl->path) < 0)
+        return -1;
 
     if (parse_method(method, &rl->method) < 0)
         return -1;
@@ -112,6 +116,8 @@ static int parse_request_line(char buf[], http_request_line_t* rl) {
 }
 
 static int parse_method(const char* method, http_method_t* methodptr) {
+    if(!methodptr) return -1;
+    
     if (!method) {
         *methodptr = HTTP_UNKNOWN;
         return -1;
@@ -127,7 +133,8 @@ static int parse_method(const char* method, http_method_t* methodptr) {
     return 0;
 }
 
-static void parse_path(char* url, char* path) {
+static int parse_path(char* url, char* path) {
+    if(!url || !path) return -1;
     // skipping query
     char* query = strstr(url, "?");
     if (query)
@@ -137,6 +144,8 @@ static void parse_path(char* url, char* path) {
 
     if (path[strlen(path) - 1] == '/')
         strncat(path, "index.html", PATH_SIZE - strlen(path) - 1);
+
+    return 0;
 }
 
 static int parse_body(char buf[], http_request_t* request) {
