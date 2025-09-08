@@ -27,8 +27,8 @@ int load_config(const char* filename, Config* config) {
     while (fgets(line, sizeof(line), file) != NULL) {
         char* trimmed = trim(line);
 
-        char* key = strtok(trimmed, "=");
-        char* value = strtok(NULL, "=");
+        const char* key = strtok(trimmed, "=");
+        const char* value = strtok(NULL, "=");
 
         if (key && value) {
             if (strcmp(key, "port") == 0) {

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void thread_queue_push(TaskQueue* queue, Task task);
 static void* thread_do_work(void* arg);
 
 void thread_queue_init(TaskQueue* queue) {
@@ -11,7 +10,7 @@ void thread_queue_init(TaskQueue* queue) {
     pthread_cond_init(&queue->not_empty, NULL);
 }
 
-ThreadPool* threadpool_create(int num_threads){
+ThreadPool* threadpool_create(const int num_threads){
     ThreadPool* tp = malloc(sizeof(ThreadPool));
     if (!tp) return NULL;
 
@@ -61,7 +60,7 @@ static void* thread_do_work(void* arg) {
     return NULL;
 }
 
-void thread_queue_push(TaskQueue* queue, Task task) {
+void thread_queue_push(TaskQueue* queue, const Task task) {
     pthread_mutex_lock(&queue->lock);
     queue->tasks[queue->count] = task;
     queue->count++;

@@ -1,3 +1,6 @@
+#ifndef REQUEST_H
+#define REQUEST_H
+
 #define MAX_HEADERS 100
 #define PATH_SIZE 512
 #define URL_SIZE 256
@@ -30,3 +33,4 @@ typedef struct {
 } http_request_t;
 
 http_request_t parse_request(char buf[]);
+#endif

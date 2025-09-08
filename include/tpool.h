@@ -22,8 +22,8 @@ typedef struct {
     TaskQueue queue;
 } ThreadPool;
 
-ThreadPool* threadpool_create(int num_threads);
+ThreadPool* threadpool_create(const int num_threads);
 void thread_queue_init(TaskQueue *queue); 
-void thread_queue_push(TaskQueue *queue,Task task);
+void thread_queue_push(TaskQueue *queue, const Task task);
 
 #endif

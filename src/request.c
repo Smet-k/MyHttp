@@ -13,7 +13,7 @@ static const char* http_method_str[] = {
     "UNKNOWN"
 };
 
-static int parse_method(char* method, http_method_t* methodptr);
+static int parse_method(const char* method, http_method_t* methodptr);
 static void parse_path(char* url, char* path);
 static int parse_request_line(char buf[], http_request_line_t* rl);
 static int parse_headers(char buf[], http_request_t* request);
@@ -48,7 +48,7 @@ static int parse_headers(char buf[], http_request_t* request){
         }
 
         char* value;
-        char* key = strtok_r(line, ":", &value);
+        const char* key = strtok_r(line, ":", &value);
 
         if(!key || !value) return -1;
 
@@ -81,15 +81,12 @@ static int parse_request_line(char buf[], http_request_line_t* rl){
     snprintf(format_string, sizeof(format_string),
     "%%%ds %%%ds %%%ds", METHOD_SIZE - 1, URL_SIZE - 1, VERSION_SIZE - 1);
     
-    // char* line_end = strstr(buf, "\r\n");
-    char* line = strtok_r(buf, "\r\n", &save_ptr);
+    const char* line = strtok_r(buf, "\r\n", &save_ptr);
     
     if (!line) {
         rl->method = HTTP_UNKNOWN;
         return -1;
     }
-
-    // *line_end = '\0';
 
     int n = sscanf(line, format_string, method, url, rl->version);
     if (n != 3) {
@@ -98,8 +95,6 @@ static int parse_request_line(char buf[], http_request_line_t* rl){
     }
     strcpy(buf, save_ptr+1); // +1 removes the \n
 
-    // *line_end = '\r';
-    
     parse_path(url, rl->path);
 
     if(parse_method(method, &rl->method) < 0)
@@ -108,7 +103,7 @@ static int parse_request_line(char buf[], http_request_line_t* rl){
     return 0;
 }
 
-static int parse_method(char* method, http_method_t* methodptr){
+static int parse_method(const char* method, http_method_t* methodptr){
     if(!method){
         *methodptr = HTTP_UNKNOWN;
         return -1;

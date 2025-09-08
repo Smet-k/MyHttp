@@ -11,22 +11,20 @@
 
 #include "tpool.h"
 #include "request.h"
-#define MAX_CLIENTS 1024
+#define MAX_CLIENTS 50000
 #define BUFFER_SIZE 1024
 #define SERVERSTRING "Server: myHttp\r\n"
 #define ROOTFOLDER "html"
 
 static void startup(int* server_fd, struct sockaddr_in* server_addr, Config* cfg);
-static void accept_requests(int server_fd, Config cfg);
+static void accept_requests(const int server_fd, const Config cfg);
 
-static void process_requests(int client);
+static void process_requests(const int client);
 
-static void respond(int client, int code, const char* reason);
-static void respond_file(int client, http_request_t request, FILE* resource);
+static void respond(const int client, const int code, const char* reason);
+static void respond_file(const int client, const http_request_t request, FILE* resource);
 static const char* get_mime_type(const char* filename);
-
-static void handle_request(int client, http_request_t request);
-// static void handle_post(int client, http_request_t request, char* buf);
+static void handle_request(const int client, const http_request_t request);
 
 void run_server(Config cfg) {
     struct sockaddr_in server_addr;
@@ -45,7 +43,7 @@ static void startup(int* server_fd, struct sockaddr_in* server_addr, Config* cfg
         exit(EXIT_FAILURE);
     }
 
-    int opt = 1;
+    const int opt = 1;
     setsockopt(*server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     server_addr->sin_family = AF_INET;
@@ -81,7 +79,7 @@ static void startup(int* server_fd, struct sockaddr_in* server_addr, Config* cfg
     printf("Listening at localhost:%u\n", cfg->port);
 }
 
-static void accept_requests(int server_fd, Config cfg) {
+static void accept_requests(const int server_fd, const Config cfg) {
     ThreadPool* tp = threadpool_create(cfg.threads);
     struct sockaddr_in client_addr;
     socklen_t client_addr_length = sizeof(client_addr);
@@ -92,7 +90,7 @@ static void accept_requests(int server_fd, Config cfg) {
     nfds_t nfds = 1;
 
     while (1) {
-        int ready = poll(fds, nfds, -1);
+        const int ready = poll(fds, nfds, -1);
         if (ready < 0) {
             perror("poll failed");
             continue;
@@ -101,7 +99,7 @@ static void accept_requests(int server_fd, Config cfg) {
         for (int i = 0; i < nfds; i++) {
             if (fds[i].revents & POLLIN) {
                 if (fds[i].fd == server_fd) {
-                    int client_sock = accept(server_fd,
+                    const int client_sock = accept(server_fd,
                                              (struct sockaddr*)&client_addr,
                                              &client_addr_length);
 
@@ -128,18 +126,17 @@ static void accept_requests(int server_fd, Config cfg) {
     }
 }
 
-static void process_requests(int client) {
+static void process_requests(const int client) {
     char buf[BUFFER_SIZE];
-    http_request_t request;
 
-    int numbytes = recv(client, buf, sizeof(buf) - 1, 0);
+    const int numbytes = recv(client, buf, sizeof(buf) - 1, 0);
     if (numbytes <= 0) {
         close(client);
         return;
     }
 
     buf[numbytes] = '\0';
-    request = parse_request(buf);
+    const http_request_t request = parse_request(buf);
 
     if (request.content_length < 0 && request.request_line.method == HTTP_POST) {
         respond(client, 400, "Bad Request");
@@ -159,7 +156,7 @@ static void process_requests(int client) {
     close(client);
 }
 
-static void respond(int client, int code, const char* reason) {
+static void respond(const int client, const int code, const char* reason) {
     char buf[BUFFER_SIZE];
 
     sprintf(buf, "HTTP/1.0 %d %s", code, reason);
@@ -212,7 +209,7 @@ static void respond_file(int client, http_request_t request, FILE* resource){
     }
 }
 
-static void handle_request(int client, http_request_t request) {
+static void handle_request(const int client, const http_request_t request) {
     FILE* file = NULL;
 
     file = fopen(request.request_line.path, "r");
